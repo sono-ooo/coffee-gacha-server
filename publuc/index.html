@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>楽天コーヒーガチャ</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        #coffee-img { width: 200px; height: 200px; object-fit: cover; }
+        .card { border: 1px solid #ddd; padding: 20px; display: inline-block; margin-top: 20px; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>楽天コーヒーガチャ</h1>
+    <button onclick="rollGacha()">ガチャを回す</button>
+    <div id="result" class="card" style="display: none;">
+        <h2 id="coffee-name"></h2>
+        <img id="coffee-img" src="" alt="コーヒー豆">
+        <p id="coffee-price"></p>
+        <a id="coffee-link" href="#" target="_blank">商品ページへ</a>
+    </div>
+
+    <script>
+        const appId = "e06e2a5afcf14b52139c1fb6c58e9dbc"; // ここに自分の楽天APIキーを入れる
+        const proxyUrl = "https://cors-anywhere.herokuapp.com/"; // CORS回避用
+        const apiUrl = `${proxyUrl}https://app.rakuten.co.jp/services/api/IchibaItem/Search/20170706?applicationId=${appId}&keyword=%E3%82%B3%E3%83%BC%E3%83%92%E3%83%BC%E8%B1%86&hits=30&format=json`;
+
+        async function rollGacha() {
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                const items = data.Items;
+
+                if (!items || items.length === 0) {
+                    alert("コーヒー豆が見つかりませんでした。");
+                    return;
+                }
+
+                const randomIndex = Math.floor(Math.random() * items.length);
+                const coffee = items[randomIndex].Item;
+                
+                document.getElementById("coffee-name").textContent = coffee.itemName;
+                document.getElementById("coffee-img").src = coffee.mediumImageUrls[0].imageUrl;
+                document.getElementById("coffee-price").textContent = `¥${coffee.itemPrice}`;
+                document.getElementById("coffee-link").href = coffee.itemUrl;
+                document.getElementById("result").style.display = "block";
+            } catch (error) {
+                console.error("エラーが発生しました", error);
+                alert("データの取得に失敗しました。");
+            }
+        }
+    </script>
+</body>
+</html>
